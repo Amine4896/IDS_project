@@ -8,6 +8,7 @@ import time
 import base64
 
 
+# Configuration générale
 st.set_page_config(
     page_title="IDS - Détection d'attaques réseau",
     layout="wide",
@@ -15,7 +16,7 @@ st.set_page_config(
     page_icon="🛡️"
 )
 
-# CSS
+# CSS 
 st.markdown("""
     <style>
     /* Arrière-plan avec image de hacker */
@@ -130,7 +131,15 @@ st.markdown("""
     [data-testid="stSidebar"] .stRadio label {
         color: #ffffff;
         font-family: 'Courier New', monospace;
-        font-size: 1.1rem;
+        font-size: 1rem;
+        padding: 0.5rem;
+        transition: all 0.3s;
+    }
+    
+    [data-testid="stSidebar"] .stRadio label:hover {
+        background-color: rgba(0, 255, 65, 0.1);
+        border-left: 3px solid #00ff41;
+        padding-left: 0.8rem;
     }
     
     /* Textes */
@@ -190,6 +199,8 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
+
+# Chargement du pipeline
 
 @st.cache_resource
 def load_pipeline():
@@ -262,7 +273,6 @@ attack_category = {
     "Wipro_bulb": "IoT"
 }
 
-
 st.markdown('<h1 class="main-header">SYSTÈME DE DÉTECTION D\'INTRUSIONS</h1>', unsafe_allow_html=True)
 st.markdown('<p class="sub-header">[ PLATEFORME AVANCÉE DE CYBERSÉCURITÉ - ANALYSE TEMPS RÉEL ]</p>', unsafe_allow_html=True)
 
@@ -302,23 +312,35 @@ if 'current_page' not in st.session_state:
 with st.sidebar:
     st.markdown("### NAVIGATION SYSTÈME")
     
-    menu = st.radio(
+    # Options de menu avec symboles
+    menu_options = {
+        "⌂ TABLEAU DE BORD": "TABLEAU DE BORD",
+        "▣ ANALYSE PAR FICHIER": "ANALYSE PAR FICHIER",
+        "▤ ANALYSE MANUELLE": "ANALYSE MANUELLE",
+        "▦ STATISTIQUES": "STATISTIQUES",
+        "▧ DOCUMENTATION": "DOCUMENTATION"
+    }
+    
+    # Trouver l'index actuel
+    menu_keys = list(menu_options.keys())
+    current_index = 0
+    for i, (key, value) in enumerate(menu_options.items()):
+        if value == st.session_state.current_page:
+            current_index = i
+            break
+    
+    menu_display = st.radio(
         "",
-        [
-            "TABLEAU DE BORD",
-            "ANALYSE PAR FICHIER",
-            "ANALYSE MANUELLE",
-            "STATISTIQUES",
-            "DOCUMENTATION"
-        ],
+        menu_keys,
         key="menu_selection",
-        index=["TABLEAU DE BORD", "ANALYSE PAR FICHIER", "ANALYSE MANUELLE", "STATISTIQUES", "DOCUMENTATION"].index(st.session_state.current_page),
+        index=current_index,
         label_visibility="collapsed"
     )
     
- 
-    if menu != st.session_state.current_page:
-        st.session_state.current_page = menu
+    # Mise à jour de la page actuelle
+    selected_page = menu_options[menu_display]
+    if selected_page != st.session_state.current_page:
+        st.session_state.current_page = selected_page
         st.rerun()
     
     st.markdown("---")
@@ -331,7 +353,7 @@ with st.sidebar:
     st.markdown(f"**HEURE:** {datetime.now().strftime('%H:%M:%S')}")
 
 
-if menu == "TABLEAU DE BORD":
+if st.session_state.current_page == "TABLEAU DE BORD":
     st.header("TABLEAU DE BORD - VUE D'ENSEMBLE")
     
     st.markdown("""
@@ -385,7 +407,7 @@ if menu == "TABLEAU DE BORD":
             st.session_state.current_page = "DOCUMENTATION"
             st.rerun()
     
-    
+    # Graphique des types d'attaques
     st.markdown("### RÉPARTITION DES TYPES D'ATTAQUES DÉTECTABLES")
     
     df_attacks = pd.DataFrame({
@@ -431,7 +453,7 @@ if menu == "TABLEAU DE BORD":
         st.plotly_chart(fig, use_container_width=True)
 
 
-elif menu == "ANALYSE PAR FICHIER":
+elif st.session_state.current_page == "ANALYSE PAR FICHIER":
     st.header("ANALYSE PAR IMPORTATION DE FICHIER")
     
     st.markdown("""
@@ -479,7 +501,7 @@ elif menu == "ANALYSE PAR FICHIER":
                     
                     st.success("DÉTECTION TERMINÉE AVEC SUCCÈS")
                     
-                    
+                    # Métriques globales
                     col1, col2, col3, col4 = st.columns(4)
                     with col1:
                         st.metric("TOTAL ANALYSÉ", len(df_test))
@@ -492,7 +514,7 @@ elif menu == "ANALYSE PAR FICHIER":
                         most_common = df_test["Attack_type"].mode()[0]
                         st.metric("PLUS FRÉQUENTE", most_common)
                     
-                   
+                    # Graphiques
                     st.markdown("### VISUALISATIONS")
                     
                     col1, col2 = st.columns(2)
@@ -531,7 +553,7 @@ elif menu == "ANALYSE PAR FICHIER":
                         )
                         st.plotly_chart(fig, use_container_width=True)
                     
-                   
+                    # Distribution par catégorie
                     st.markdown("**Distribution par catégorie**")
                     category_counts = df_test["Category"].value_counts()
                     fig = px.bar(
@@ -549,7 +571,7 @@ elif menu == "ANALYSE PAR FICHIER":
                     )
                     st.plotly_chart(fig, use_container_width=True)
                     
-                   
+                    # Tableau des résultats
                     st.markdown("### RÉSULTATS DÉTAILLÉS")
                     st.dataframe(
                         df_test[["Attack_type_encoder", "Attack_type", "Severity", "Category"]],
@@ -566,7 +588,7 @@ elif menu == "ANALYSE PAR FICHIER":
                     )
 
 
-elif menu == "ANALYSE MANUELLE":
+elif st.session_state.current_page == "ANALYSE MANUELLE":
     st.header("ANALYSE MANUELLE DES CARACTÉRISTIQUES")
     
     st.markdown("""
@@ -693,7 +715,7 @@ elif menu == "ANALYSE MANUELLE":
                         st.dataframe(df_input.T, use_container_width=True)
 
 
-elif menu == "STATISTIQUES":
+elif st.session_state.current_page == "STATISTIQUES":
     st.header("STATISTIQUES ET VISUALISATIONS")
     
     st.markdown("""
@@ -703,7 +725,7 @@ elif menu == "STATISTIQUES":
     </div>
     """, unsafe_allow_html=True)
     
-    # Tableau 
+    # Tableau récapitulatif
     df_summary = pd.DataFrame({
         'Type d\'attaque': list(attack_map.values()),
         'Catégorie': [attack_category[a] for a in attack_map.values()],
@@ -714,7 +736,7 @@ elif menu == "STATISTIQUES":
     st.markdown("### CATALOGUE DES ATTAQUES")
     st.dataframe(df_summary, use_container_width=True)
     
-    
+    # Graphiques
     st.markdown("### ANALYSES GRAPHIQUES")
     
     col1, col2 = st.columns(2)
@@ -752,7 +774,7 @@ elif menu == "STATISTIQUES":
         )
         st.plotly_chart(fig, use_container_width=True)
     
-    
+    # Matrice de sévérité par catégorie
     st.markdown("### MATRICE CATÉGORIE-SÉVÉRITÉ")
     cross_tab = pd.crosstab(df_summary['Catégorie'], df_summary['Sévérité'])
     fig = px.imshow(
@@ -769,7 +791,7 @@ elif menu == "STATISTIQUES":
     st.plotly_chart(fig, use_container_width=True)
 
 
-elif menu == "DOCUMENTATION":
+elif st.session_state.current_page == "DOCUMENTATION":
     st.header("DOCUMENTATION TECHNIQUE")
     
     tab1, tab2, tab3 = st.tabs(["VARIABLES REQUISES", "GUIDE D'UTILISATION", "FAQ"])
@@ -980,6 +1002,6 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.markdown("**SYSTÈME IDS - MACHINE LEARNING**")
 with col2:
-    st.markdown(f"**VERSION 1.0 - {datetime.now().strftime('%Y')}**")
+    st.markdown(f"**VERSION 2.0 - {datetime.now().strftime('%Y')}**")
 with col3:
     st.markdown("**CYBERSÉCURITÉ AVANCÉE**")
