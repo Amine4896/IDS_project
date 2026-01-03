@@ -7,6 +7,7 @@ from datetime import datetime
 import time
 import base64
 
+
 st.set_page_config(
     page_title="IDS - Détection d'attaques réseau",
     layout="wide",
@@ -14,7 +15,7 @@ st.set_page_config(
     page_icon="🛡️"
 )
 
-
+# CSS
 st.markdown("""
     <style>
     /* Arrière-plan avec image de hacker */
@@ -200,9 +201,7 @@ def load_pipeline():
 
 pipeline = load_pipeline()
 
-# ======================================
-# Mapping des attaques avec descriptions
-# ======================================
+
 attack_map = {
     0: "ARP_poisioning",
     1: "DDOS_Slowloris",
@@ -263,27 +262,41 @@ attack_category = {
     "Wipro_bulb": "IoT"
 }
 
+
 st.markdown('<h1 class="main-header">SYSTÈME DE DÉTECTION D\'INTRUSIONS</h1>', unsafe_allow_html=True)
 st.markdown('<p class="sub-header">[ PLATEFORME AVANCÉE DE CYBERSÉCURITÉ - ANALYSE TEMPS RÉEL ]</p>', unsafe_allow_html=True)
 
 col1, col2, col3 = st.columns(3)
 with col1:
+    if st.button("DÉTECTION TEMPS RÉEL", use_container_width=True):
+        st.session_state.current_page = "ANALYSE MANUELLE"
+        st.rerun()
     st.markdown('''<div class="metric-card">
         <h3>DÉTECTION TEMPS RÉEL</h3>
         <p>Analyse automatique des flux réseau avec intelligence artificielle</p>
     </div>''', unsafe_allow_html=True)
 with col2:
+    if st.button("MACHINE LEARNING", use_container_width=True):
+        st.session_state.current_page = "STATISTIQUES"
+        st.rerun()
     st.markdown('''<div class="metric-card">
         <h3>MACHINE LEARNING</h3>
         <p>Algorithme de classification haute précision</p>
     </div>''', unsafe_allow_html=True)
 with col3:
+    if st.button("12 TYPES D'ATTAQUES", use_container_width=True):
+        st.session_state.current_page = "DOCUMENTATION"
+        st.rerun()
     st.markdown('''<div class="metric-card">
         <h3>12 TYPES D'ATTAQUES</h3>
         <p>Détection multi-catégories (Réseau, Scan, IoT)</p>
     </div>''', unsafe_allow_html=True)
 
 st.markdown("---")
+
+
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "TABLEAU DE BORD"
 
 
 with st.sidebar:
@@ -298,8 +311,15 @@ with st.sidebar:
             "STATISTIQUES",
             "DOCUMENTATION"
         ],
+        key="menu_selection",
+        index=["TABLEAU DE BORD", "ANALYSE PAR FICHIER", "ANALYSE MANUELLE", "STATISTIQUES", "DOCUMENTATION"].index(st.session_state.current_page),
         label_visibility="collapsed"
     )
+    
+ 
+    if menu != st.session_state.current_page:
+        st.session_state.current_page = menu
+        st.rerun()
     
     st.markdown("---")
     st.markdown("### PARAMÈTRES")
@@ -337,6 +357,10 @@ if menu == "TABLEAU DE BORD":
         - Rapports détaillés avec niveaux de sévérité
         - Classification par catégorie (Réseau, Scan, IoT)
         """)
+        
+        if st.button("COMMENCER L'ANALYSE", type="primary", use_container_width=True):
+            st.session_state.current_page = "ANALYSE PAR FICHIER"
+            st.rerun()
     
     with col2:
         st.markdown("### GUIDE D'UTILISATION")
@@ -356,8 +380,12 @@ if menu == "TABLEAU DE BORD":
         - Accédez aux guides techniques
         - FAQ et support
         """)
+        
+        if st.button("VOIR LA DOCUMENTATION", use_container_width=True):
+            st.session_state.current_page = "DOCUMENTATION"
+            st.rerun()
     
-    # Graphique des types d'attaques
+    
     st.markdown("### RÉPARTITION DES TYPES D'ATTAQUES DÉTECTABLES")
     
     df_attacks = pd.DataFrame({
@@ -464,7 +492,7 @@ elif menu == "ANALYSE PAR FICHIER":
                         most_common = df_test["Attack_type"].mode()[0]
                         st.metric("PLUS FRÉQUENTE", most_common)
                     
-                    
+                   
                     st.markdown("### VISUALISATIONS")
                     
                     col1, col2 = st.columns(2)
@@ -521,14 +549,14 @@ elif menu == "ANALYSE PAR FICHIER":
                     )
                     st.plotly_chart(fig, use_container_width=True)
                     
-                    # Tableau des résultats
+                   
                     st.markdown("### RÉSULTATS DÉTAILLÉS")
                     st.dataframe(
                         df_test[["Attack_type_encoder", "Attack_type", "Severity", "Category"]],
                         use_container_width=True
                     )
                     
-                    
+                    # Téléchargement
                     csv = df_test.to_csv(index=False).encode('utf-8')
                     st.download_button(
                         label="TÉLÉCHARGER LES RÉSULTATS (CSV)",
@@ -622,7 +650,7 @@ elif menu == "ANALYSE MANUELLE":
                 description = attack_description[attack_name]
                 category = attack_category[attack_name]
                 
-                
+                # Affichage du résultat
                 st.markdown("---")
                 st.markdown("## RÉSULTAT DE L'ANALYSE")
                 
@@ -675,7 +703,7 @@ elif menu == "STATISTIQUES":
     </div>
     """, unsafe_allow_html=True)
     
-    
+    # Tableau 
     df_summary = pd.DataFrame({
         'Type d\'attaque': list(attack_map.values()),
         'Catégorie': [attack_category[a] for a in attack_map.values()],
@@ -952,6 +980,6 @@ col1, col2, col3 = st.columns(3)
 with col1:
     st.markdown("**SYSTÈME IDS - MACHINE LEARNING**")
 with col2:
-    st.markdown(f"**VERSION 2.0 - {datetime.now().strftime('%Y')}**")
+    st.markdown(f"**VERSION 1.0 - {datetime.now().strftime('%Y')}**")
 with col3:
     st.markdown("**CYBERSÉCURITÉ AVANCÉE**")
