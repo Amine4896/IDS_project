@@ -314,11 +314,11 @@ with st.sidebar:
     
     # Options de menu avec symboles
     menu_options = {
-        "⌂ TABLEAU DE BORD": "TABLEAU DE BORD",
-        "▣ ANALYSE PAR FICHIER": "ANALYSE PAR FICHIER",
-        "▤ ANALYSE MANUELLE": "ANALYSE MANUELLE",
-        "▦ STATISTIQUES": "STATISTIQUES",
-        "▧ DOCUMENTATION": "DOCUMENTATION"
+        " TABLEAU DE BORD": "TABLEAU DE BORD",
+        " ANALYSE PAR FICHIER": "ANALYSE PAR FICHIER",
+        " ANALYSE MANUELLE": "ANALYSE MANUELLE",
+        " STATISTIQUES": "STATISTIQUES",
+        " DOCUMENTATION": "DOCUMENTATION"
     }
     
     # Trouver l'index actuel
@@ -1005,3 +1005,4 @@ with col2:
     st.markdown(f"**VERSION 2.0 - {datetime.now().strftime('%Y')}**")
 with col3:
     st.markdown("**CYBERSÉCURITÉ AVANCÉE**")
+
